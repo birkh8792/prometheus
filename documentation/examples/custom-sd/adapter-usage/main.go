@@ -160,6 +160,7 @@ func (d *discovery) parseServiceNodes(resp *http.Response, name string) (*target
 // to scrape for metrics), and then send those targets as a target.TargetGroup to the ch channel.
 func (d *discovery) Run(ctx context.Context, ch chan<- []*targetgroup.Group) {
 	for c := time.Tick(time.Duration(d.refreshInterval) * time.Second); ; {
+		fmt.Println("invoke......")
 		var srvs map[string][]string
 		resp, err := http.Get(fmt.Sprintf("http://%s/v1/catalog/services", d.address))
 

@@ -1,0 +1,50 @@
+# my global config
+global:
+  scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: 'proxy'
+    honor_labels: true
+    serverset_sd_configs:
+      - servers:
+          - '127.0.0.1:2181'
+        paths:
+          - '/proxy'
+    relabel_configs:
+      - source_labels: ['__meta_serverset_path']    # 待抓取的服务器集合路径
+        regex: '^/proxy/([^/]+)/([^/]+)'                       # 路径匹配规则
+        target_label: 'meta_ip'
+        replacement: '${1}&${2}'
+      - source_labels: ['meta_ip']
+        regex: '(\d+.\d+.\d+.\d+):(\d+)&(\d+.\d+.\d+.\d+):(\d+)'  # 解析出ip
+        target_label: '__address__'
+        replacement: '${1}:${2}'   # 设置监听的服务器ip
+      - source_labels: ['meta_ip']
+        regex: '(\d+.\d+.\d+.\d+):(\d+)&(\d+.\d+.\d+.\d+):(\d+)'
+        target_label: 'machine'    # 设置所属服务器,用于标识作用,便于以后分组
+        replacement: '${3}:${4}'

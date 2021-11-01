@@ -44,3 +44,6 @@ scrape_configs:
         logLevel: "debug"
         username: "nacos"
         password: "nacos"
+        #dataId: "nacos"
+        #group: "nacos"
+        refresh_interval: 15s

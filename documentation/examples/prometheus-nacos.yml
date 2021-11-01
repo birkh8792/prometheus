@@ -47,3 +47,6 @@ scrape_configs:
         #dataId: "nacos"
         #group: "nacos"
         refresh_interval: 15s
+
+
+
